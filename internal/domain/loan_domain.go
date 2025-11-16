@@ -11,17 +11,17 @@ import (
 )
 
 type LoanDomain struct {
-	loanRepository    *repository.LoanRepository
-	billingRepository *repository.BillingRepository
+	loanRepository *repository.LoanRepository
+	billRepository *repository.BillRepository
 }
 
 func NewLoanDomain(
 	loanRepository *repository.LoanRepository,
-	billingRepository *repository.BillingRepository,
+	billRepository *repository.BillRepository,
 ) *LoanDomain {
 	return &LoanDomain{
-		loanRepository:    loanRepository,
-		billingRepository: billingRepository,
+		loanRepository: loanRepository,
+		billRepository: billRepository,
 	}
 }
 
@@ -54,9 +54,9 @@ func (h *LoanDomain) GetById(ctx context.Context, loanId string) (model.Loan, er
 	return loan, err
 }
 
-func (h *LoanDomain) GetOverdueBillingByLoanId(ctx context.Context, loanId string) (dto.LoanWithBillings, error) {
+func (h *LoanDomain) GetOverdueBillByLoanId(ctx context.Context, loanId string) (dto.LoanWithBills, error) {
 	var (
-		response dto.LoanWithBillings
+		response dto.LoanWithBills
 		err      error
 	)
 	response.Loan, err = h.loanRepository.GetByID(ctx, loanId)
@@ -75,7 +75,7 @@ func (h *LoanDomain) GetOverdueBillingByLoanId(ctx context.Context, loanId strin
 		}
 	}
 
-	response.Billings, err = h.billingRepository.GetAllOverdueByLoanId(ctx, loanId)
+	response.Bills, err = h.billRepository.GetAllOverdueByLoanId(ctx, loanId)
 	if err != nil {
 		return response, err
 	}
@@ -83,20 +83,20 @@ func (h *LoanDomain) GetOverdueBillingByLoanId(ctx context.Context, loanId strin
 	return response, err
 }
 
-func (h *LoanDomain) PayBillings(ctx context.Context, loanWithBillings dto.LoanWithBillings) error {
+func (h *LoanDomain) PayBills(ctx context.Context, loanWithBills dto.LoanWithBills) error {
 	var (
 		err    error
-		loanId string = loanWithBillings.Loan.ID
+		loanId string = loanWithBills.Loan.ID
 	)
 
-	for _, bill := range loanWithBillings.Billings {
-		err = h.billingRepository.UpdateBillToPaid(ctx, bill.ID)
+	for _, bill := range loanWithBills.Bills {
+		err = h.billRepository.UpdateBillToPaid(ctx, bill.ID)
 		if err != nil {
 			return err
 		}
 	}
 
-	totalPaid, err := h.billingRepository.GetTotalPaid(ctx, loanId)
+	totalPaid, err := h.billRepository.GetTotalPaid(ctx, loanId)
 	if err != nil {
 		return err
 	}

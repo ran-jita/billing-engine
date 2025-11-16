@@ -8,15 +8,15 @@ import (
 	"time"
 )
 
-type BillingRepository struct {
+type BillRepository struct {
 	db *sqlx.DB
 }
 
-const statusBillingUnpaid string = "unpaid"
-const statusBillingPaid string = "paid"
+const statusBillUnpaid string = "unpaid"
+const statusBillPaid string = "paid"
 
-func NewBillingRepository(db *sqlx.DB) *BillingRepository {
-	return &BillingRepository{db: db}
+func NewBillRepository(db *sqlx.DB) *BillRepository {
+	return &BillRepository{db: db}
 }
 
 // Create membuat loan baru
@@ -49,15 +49,15 @@ func NewBillingRepository(db *sqlx.DB) *BillingRepository {
 //}
 
 // GetPaid get sum of amount of bill with status paid
-func (r *BillingRepository) GetTotalPaid(ctx context.Context, loanId string) (*float64, error) {
+func (r *BillRepository) GetTotalPaid(ctx context.Context, loanId string) (*float64, error) {
 	var totalPaid *float64
 	query := `
       SELECT sum(amount)
-		FROM billings
+		FROM bills
 		WHERE loan_id = $1 AND status = $2
 	`
 
-	err := r.db.GetContext(ctx, &totalPaid, query, loanId, statusBillingPaid)
+	err := r.db.GetContext(ctx, &totalPaid, query, loanId, statusBillPaid)
 	if err != nil {
 		return nil, err
 	}
@@ -65,9 +65,9 @@ func (r *BillingRepository) GetTotalPaid(ctx context.Context, loanId string) (*f
 	return totalPaid, nil
 }
 
-// GetAllOverdueByLoanId get all overdue billings by loan_id
-func (r *BillingRepository) GetAllOverdueByLoanId(ctx context.Context, loanId string) ([]model.Billing, error) {
-	var billings []model.Billing
+// GetAllOverdueByLoanId get all overdue bills by loan_id
+func (r *BillRepository) GetAllOverdueByLoanId(ctx context.Context, loanId string) ([]model.Bill, error) {
+	var bills []model.Bill
 	query := `
        SELECT
            id,
@@ -84,18 +84,18 @@ func (r *BillingRepository) GetAllOverdueByLoanId(ctx context.Context, loanId st
        ORDER BY created_at DESC
    `
 
-	err := r.db.SelectContext(ctx, &billings, query, loanId, statusBillingUnpaid)
+	err := r.db.SelectContext(ctx, &bills, query, loanId, statusBillUnpaid)
 	if err != nil {
 		return nil, err
 	}
 
-	return billings, nil
+	return bills, nil
 }
 
-// UpdateBilling update bills data
-func (r *BillingRepository) UpdateBillToPaid(ctx context.Context, billId string) error {
+// UpdateBill update bills data
+func (r *BillRepository) UpdateBillToPaid(ctx context.Context, billId string) error {
 	query := `
-       UPDATE billing
+       UPDATE bills
        SET status = $1, updated_at = $2
        WHERE id = $3
    `
@@ -103,7 +103,7 @@ func (r *BillingRepository) UpdateBillToPaid(ctx context.Context, billId string)
 	_, err := r.db.ExecContext(
 		ctx,
 		query,
-		statusBillingPaid,
+		statusBillPaid,
 		time.Now,
 		billId,
 	)

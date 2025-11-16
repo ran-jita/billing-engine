@@ -1,4 +1,4 @@
-CREATE TABLE billings (
+CREATE TABLE bills (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     loan_id VARCHAR(36) NOT NULL,
     amount FLOAT NOT NULL,

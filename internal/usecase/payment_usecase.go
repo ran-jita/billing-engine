@@ -27,19 +27,19 @@ func NewPaymentUsecase(
 
 func (u *PaymentUsecase) Create(ctx context.Context, request *dto.CreatePayment) (model.Payment, error) {
 	var (
-		payment          model.Payment
-		loanWithBillings dto.LoanWithBillings
-		totalAmountDue   float64
-		err              error
+		payment        model.Payment
+		loanWithBills  dto.LoanWithBills
+		totalAmountDue float64
+		err            error
 	)
 
-	loanWithBillings, err = u.loanDomain.GetOverdueBillingByLoanId(ctx, request.LoandId)
+	loanWithBills, err = u.loanDomain.GetOverdueBillByLoanId(ctx, request.LoandId)
 	if err != nil {
 		return payment, err
 	}
 
-	for _, billing := range loanWithBillings.Billings {
-		totalAmountDue += billing.Amount
+	for _, bill := range loanWithBills.Bills {
+		totalAmountDue += bill.Amount
 	}
 
 	if totalAmountDue != request.TotalAmount {
@@ -54,17 +54,16 @@ func (u *PaymentUsecase) Create(ctx context.Context, request *dto.CreatePayment)
 
 	go func() {
 		defer wg.Done()
-		err = u.paymentDomain.CreatePayment(ctx, &payment, loanWithBillings.Billings)
+		err = u.paymentDomain.CreatePayment(ctx, &payment, loanWithBills.Bills)
 		if err != nil {
 			errChan <- fmt.Errorf("create payment failed: %w", err)
 		}
 	}()
 
-	// Goroutine 2: Update billing
 	go func() {
 		defer wg.Done()
-		if err := u.loanDomain.PayBillings(ctx, loanWithBillings); err != nil {
-			errChan <- fmt.Errorf("update billing failed: %w", err)
+		if err := u.loanDomain.PayBills(ctx, loanWithBills); err != nil {
+			errChan <- fmt.Errorf("update bill failed: %w", err)
 		}
 	}()
 
@@ -77,7 +76,7 @@ func (u *PaymentUsecase) Create(ctx context.Context, request *dto.CreatePayment)
 	}
 
 	if len(errs) > 0 {
-		return fmt.Errorf("payment processing failed: %v", errs)
+		return payment, fmt.Errorf("payment processing failed: %v", errs)
 	}
 
 	return payment, <-errChan

@@ -33,8 +33,9 @@ func main() {
 
 	pingHandler := handler.NewPingHandler()
 
+	billRepository := repository.NewBillRepository(db)
 	loanRepository := repository.NewLoanRepository(db)
-	loanDomain := domain.NewLoanDomain(loanRepository)
+	loanDomain := domain.NewLoanDomain(loanRepository, billRepository)
 	loanUsecase := usecase.NewLoanUsecase(loanDomain)
 	loanHandler := handler.NewLoanHandler(loanUsecase)
 
@@ -44,8 +45,9 @@ func main() {
 	borrowerHandler := handler.NewBorrowerHandler(borrowerUsecase)
 
 	paymentRepository := repository.NewPaymentRepository(db)
-	paymentDomain := domain.NewPaymentDomain(paymentRepository)
-	paymentUsecase := usecase.NewPaymentUsecase(paymentDomain)
+	paymentBillRepository := repository.NewPaymentBillRepository(db)
+	paymentDomain := domain.NewPaymentDomain(paymentRepository, paymentBillRepository)
+	paymentUsecase := usecase.NewPaymentUsecase(paymentDomain, loanDomain)
 	paymentHandler := handler.NewPaymentHandler(paymentUsecase)
 
 	// Set Gin mode (release/debug)

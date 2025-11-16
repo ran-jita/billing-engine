@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-type Billing struct {
+type Bill struct {
 	ID        string    `json:"id" db:"id"`
 	LoanId    string    `json:"loan_id" db:"loan_id"`
 	Amount    float64   `json:"amount" db:"amount"`

@@ -9,20 +9,20 @@ import (
 
 type PaymentDomain struct {
 	paymentRepository       *repository.PaymentRepository
-	paymentBilingRepository *repository.PaymentBillingRepository
+	paymentBilingRepository *repository.PaymentBillRepository
 }
 
 func NewPaymentDomain(
 	paymentRepository *repository.PaymentRepository,
-	paymentBillingRepository *repository.PaymentBillingRepository,
+	paymentBillRepository *repository.PaymentBillRepository,
 ) *PaymentDomain {
 	return &PaymentDomain{
 		paymentRepository:       paymentRepository,
-		paymentBilingRepository: paymentBillingRepository,
+		paymentBilingRepository: paymentBillRepository,
 	}
 }
 
-func (h *PaymentDomain) CreatePayment(ctx context.Context, payment *model.Payment, billings []model.Billing) error {
+func (h *PaymentDomain) CreatePayment(ctx context.Context, payment *model.Payment, bills []model.Bill) error {
 	var err error
 
 	payment.PaymentDate = time.Now()
@@ -31,14 +31,14 @@ func (h *PaymentDomain) CreatePayment(ctx context.Context, payment *model.Paymen
 		return err
 	}
 
-	for _, billing := range billings {
-		var paymentBilling *model.PaymentBilling
-		paymentBilling = &model.PaymentBilling{
+	for _, bill := range bills {
+		var paymentBill *model.PaymentBill
+		paymentBill = &model.PaymentBill{
 			PaymentId: payment.ID,
-			BillingId: billing.ID,
-			Amount:    billing.Amount,
+			BillId:    bill.ID,
+			Amount:    bill.Amount,
 		}
-		err = h.paymentBilingRepository.CreatePaymentBilling(ctx, paymentBilling)
+		err = h.paymentBilingRepository.CreatePaymentBill(ctx, paymentBill)
 		if err != nil {
 			return err
 		}
