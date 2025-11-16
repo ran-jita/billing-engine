@@ -1,28 +1,63 @@
 package main
 
 import (
+	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
+	"github.com/ran-jita/billing-engine/internal/domain"
+	"github.com/ran-jita/billing-engine/internal/handler"
+	"github.com/ran-jita/billing-engine/internal/repository"
+	"github.com/ran-jita/billing-engine/internal/usecase"
 	"log"
 	"net/http"
 	"os"
 
-	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
+
+	"github.com/ran-jita/billing-engine/pkg/database"
 )
 
 func main() {
 	// Load environment variables
-	if err := godotenv.Load(); err != nil {
+	err := godotenv.Load()
+	if err != nil {
 		log.Println("No .env file found")
 	}
 
+	// Initialize database connection
+	dbConfig := database.GetConfig()
+	db, err := database.NewPostgresDB(dbConfig)
+	if err != nil {
+		log.Fatal("Failed to connect to database:", err)
+	}
+	defer db.Close()
+
+	pingHandler := handler.NewPingHandler()
+
+	loanRepository := repository.NewLoanRepository(db)
+	loanDomain := domain.NewLoanDomain(loanRepository)
+	loanUsecase := usecase.NewLoanUsecase(loanDomain)
+	loanHandler := handler.NewLoanHandler(loanUsecase)
+
+	// Set Gin mode (release/debug)
+	if os.Getenv("GIN_MODE") == "release" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	// Initialize router
-	router := mux.NewRouter()
+	router := gin.Default()
 
 	// Health check endpoint
-	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
-	}).Methods("GET")
+	router.GET("/ping", pingHandler.Ping)
+
+	group := router.Group("/api/v1")
+	{
+		// Loan routes
+		loans := group.Group("/loans")
+		{
+			loans.POST("", loanHandler.GetAll)
+			loans.GET("/:id", loanHandler.GetById)
+		}
+	}
 
 	// Start server
 	port := os.Getenv("PORT")
@@ -33,5 +68,21 @@ func main() {
 	log.Printf("Server starting on port %s", port)
 	if err := http.ListenAndServe(":"+port, router); err != nil {
 		log.Fatal(err)
+	}
+}
+
+// healthCheck handler untuk cek koneksi database
+func healthCheck(db *sqlx.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Ping database
+		if err := db.Ping(); err != nil {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			w.Write([]byte(`{"status":"error","message":"database connection failed"}`))
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"status":"ok","message":"service is healthy"}`))
 	}
 }
