@@ -38,6 +38,11 @@ func main() {
 	loanUsecase := usecase.NewLoanUsecase(loanDomain)
 	loanHandler := handler.NewLoanHandler(loanUsecase)
 
+	borrowerRepository := repository.NewBorrowerRepository(db)
+	borrowerDomain := domain.NewBorrowerDomain(borrowerRepository)
+	borrowerUsecase := usecase.NewBorrowerUsecase(borrowerDomain)
+	borrowerHandler := handler.NewBorrowerHandler(borrowerUsecase)
+
 	// Set Gin mode (release/debug)
 	if os.Getenv("GIN_MODE") == "release" {
 		gin.SetMode(gin.ReleaseMode)
@@ -56,6 +61,12 @@ func main() {
 		{
 			loans.POST("", loanHandler.GetAll)
 			loans.GET("/:id", loanHandler.GetById)
+		}
+
+		// Borrowers routes
+		borrowers := group.Group("/borrowers")
+		{
+			borrowers.GET("/:id", borrowerHandler.GetById)
 		}
 	}
 
