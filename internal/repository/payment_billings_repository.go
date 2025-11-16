@@ -8,39 +8,41 @@ import (
 	"time"
 )
 
-type PaymentRepository struct {
+type PaymentBillingRepository struct {
 	db *sqlx.DB
 }
 
-func NewPaymentRepository(db *sqlx.DB) *PaymentRepository {
-	return &PaymentRepository{db: db}
+func NewPaymentBillingRepository(db *sqlx.DB) *PaymentBillingRepository {
+	return &PaymentBillingRepository{db: db}
 }
 
-// CreatePayment create new payment
-func (r *PaymentRepository) CreatePayment(ctx context.Context, payment *model.Payment) error {
+// CreatePaymentBilling create new billing payment
+func (r *PaymentBillingRepository) CreatePaymentBilling(ctx context.Context, billingPayment *model.PaymentBilling) error {
 	query := `
-       INSERT INTO payments (
+       INSERT INTO payment_billings (
                              id,  
-                             total_amount, 
-                             payment_date, 
+                             loan_id, 
+                             billing_id,
+                             amount,
                              created_at, 
                              updated_at
-	 	) VALUES ($1, $2, $3, $4, $5)
+	 	) VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id, created_at, updated_at
    `
-	payment.ID = uuid.New().String()
-	payment.CreatedAt = time.Now()
-	payment.UpdatedAt = time.Now()
+	billingPayment.ID = uuid.New().String()
+	billingPayment.CreatedAt = time.Now()
+	billingPayment.UpdatedAt = time.Now()
 
 	err := r.db.QueryRowContext(
 		ctx,
 		query,
-		payment.ID,
-		payment.TotalAmount,
-		payment.PaymentDate,
-		payment.CreatedAt,
-		payment.UpdatedAt,
-	).Scan(&payment.ID, &payment.CreatedAt, &payment.UpdatedAt)
+		billingPayment.ID,
+		billingPayment.PaymentId,
+		billingPayment.BillingId,
+		billingPayment.Amount,
+		billingPayment.CreatedAt,
+		billingPayment.UpdatedAt,
+	).Scan(&billingPayment.ID, &billingPayment.CreatedAt, &billingPayment.UpdatedAt)
 
 	return err
 }

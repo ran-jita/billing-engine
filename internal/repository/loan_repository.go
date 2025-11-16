@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 	"github.com/ran-jita/billing-engine/internal/model"
+	"time"
+
 	//"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
@@ -97,32 +99,24 @@ func (r *LoanRepository) GetAll(ctx context.Context, borrowerId string) ([]model
 	return loans, nil
 }
 
-// Update memperbarui loan
-//func (r *LoanRepository) Update(ctx context.Context, loan *domain.Loan) error {
-//	query := `
-//        UPDATE loans
-//        SET borrower_id = $1, principal_amount = $2, interest_rate = $3,
-//            term = $4, start_date = $5, status = $6, updated_at = $7
-//        WHERE id = $8
-//    `
-//
-//	loan.UpdatedAt = time.Now()
-//
-//	_, err := r.db.ExecContext(
-//		ctx,
-//		query,
-//		loan.BorrowerID,
-//		loan.PrincipalAmount,
-//		loan.InterestRate,
-//		loan.Term,
-//		loan.StartDate,
-//		loan.Status,
-//		loan.UpdatedAt,
-//		loan.ID,
-//	)
-//
-//	return err
-//}
+// Update update outstanding amount based on total paid bill
+func (r *LoanRepository) UpdateOutstandingAmount(ctx context.Context, loanId string, totalPaid float64) error {
+	query := `
+       UPDATE loans
+       SET outstanding_amount = total_loan_amount - $1, updated_at = $2
+       WHERE id = $3
+   `
+
+	_, err := r.db.ExecContext(
+		ctx,
+		query,
+		totalPaid,
+		time.Now(),
+		loanId,
+	)
+
+	return err
+}
 
 // Delete menghapus loan
 //func (r *LoanRepository) Delete(ctx context.Context, id string) error {

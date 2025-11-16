@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/ran-jita/billing-engine/internal/model"
+	"github.com/ran-jita/billing-engine/internal/model/dto"
 	"github.com/ran-jita/billing-engine/internal/usecase"
 	"net/http"
 )
@@ -17,19 +18,19 @@ func NewPaymentHandler(paymentUsecase *usecase.PaymentUsecase) *PaymentHandler {
 
 func (h *PaymentHandler) Create(c *gin.Context) {
 	var (
-		payment    model.Payment
+		request    dto.CreatePayment
 		statusCode int
 		err        error
 	)
 
-	err = c.BindJSON(&payment)
+	err = c.BindJSON(&request)
 	if err != nil {
 		statusCode = http.StatusBadRequest
 		c.JSON(statusCode, model.ResponseError(statusCode, err))
 		return
 	}
 
-	err = h.paymentUsecase.Create(c.Request.Context(), &payment)
+	payment, err := h.paymentUsecase.Create(c.Request.Context(), &request)
 	if err != nil {
 		statusCode = http.StatusNotFound
 		c.JSON(statusCode, model.ResponseError(statusCode, err))
