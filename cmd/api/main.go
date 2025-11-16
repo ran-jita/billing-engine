@@ -43,6 +43,11 @@ func main() {
 	borrowerUsecase := usecase.NewBorrowerUsecase(borrowerDomain)
 	borrowerHandler := handler.NewBorrowerHandler(borrowerUsecase)
 
+	paymentRepository := repository.NewPaymentRepository(db)
+	paymentDomain := domain.NewPaymentDomain(paymentRepository)
+	paymentUsecase := usecase.NewPaymentUsecase(paymentDomain)
+	paymentHandler := handler.NewPaymentHandler(paymentUsecase)
+
 	// Set Gin mode (release/debug)
 	if os.Getenv("GIN_MODE") == "release" {
 		gin.SetMode(gin.ReleaseMode)
@@ -67,6 +72,12 @@ func main() {
 		borrowers := group.Group("/borrowers")
 		{
 			borrowers.GET("/:id", borrowerHandler.GetById)
+		}
+
+		// Payments routes
+		payments := group.Group("/payments")
+		{
+			payments.POST("", paymentHandler.Create)
 		}
 	}
 
