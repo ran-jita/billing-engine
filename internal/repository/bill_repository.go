@@ -19,36 +19,7 @@ func NewBillRepository(db *sqlx.DB) *BillRepository {
 	return &BillRepository{db: db}
 }
 
-// Create membuat loan baru
-//func (r *LoanRepository) Create(ctx context.Context, loan *domain.Loan) error {
-//	query := `
-//        INSERT INTO loans (id, borrower_id, principal_amount, interest_rate, term, start_date, status, created_at, updated_at)
-//        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-//        RETURNING id, created_at, updated_at
-//    `
-//
-//	loan.ID = uuid.New().String()
-//	loan.CreatedAt = time.Now()
-//	loan.UpdatedAt = time.Now()
-//
-//	err := r.db.QueryRowContext(
-//		ctx,
-//		query,
-//		loan.ID,
-//		loan.BorrowerID,
-//		loan.BaseAmount,
-//		loan.InterestRate,
-//		loan.Term,
-//		loan.StartDate,
-//		loan.Status,
-//		loan.CreatedAt,
-//		loan.UpdatedAt,
-//	).Scan(&loan.ID, &loan.CreatedAt, &loan.UpdatedAt)
-//
-//	return err
-//}
-
-// GetPaid get sum of amount of bill with status paid
+// GetTotalPaid get sum of amount of bill with status paid
 func (r *BillRepository) GetTotalPaid(ctx context.Context, tx *sqlx.Tx, loanId string) (*float64, error) {
 	var totalPaid *float64
 	query := `
@@ -91,7 +62,7 @@ func (r *BillRepository) GetAllOverdueByLoanId(ctx context.Context, loanId strin
 	return bills, nil
 }
 
-// GetAllOverdueByLoanId get all overdue bills by loan_id
+// GetBorrowerIdWithOverdueBills get borrower_id with overdue bills
 func (r *BillRepository) GetBorrowerIdWithOverdueBills(ctx context.Context, processDate time.Time) ([]string, error) {
 	var borrowerId []string
 	query := `
@@ -110,7 +81,7 @@ func (r *BillRepository) GetBorrowerIdWithOverdueBills(ctx context.Context, proc
 	return borrowerId, nil
 }
 
-// UpdateBill update bills data
+// UpdateBillToPaid update bills data
 func (r *BillRepository) UpdateBillToPaid(ctx context.Context, tx *sqlx.Tx, billId string) error {
 	query := `
        UPDATE bills
@@ -129,10 +100,3 @@ func (r *BillRepository) UpdateBillToPaid(ctx context.Context, tx *sqlx.Tx, bill
 
 	return err
 }
-
-// Delete menghapus loan
-//func (r *LoanRepository) Delete(ctx context.Context, id string) error {
-//	query := `DELETE FROM loans WHERE id = $1`
-//	_, err := r.db.ExecContext(ctx, query, id)
-//	return err
-//}

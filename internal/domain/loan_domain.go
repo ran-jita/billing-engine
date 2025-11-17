@@ -28,7 +28,7 @@ func NewLoanDomain(
 }
 
 func (h *LoanDomain) GetAll(ctx context.Context, borrowerId string) ([]postgresql.Loan, error) {
-	loan, err := h.loanRepository.GetAll(ctx, borrowerId)
+	loan, err := h.loanRepository.GetAllByBorrowerId(ctx, borrowerId)
 	if len(loan) == 0 {
 		// Handle not found case
 		err = errors.New("loan not found")
