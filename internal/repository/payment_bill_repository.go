@@ -21,13 +21,13 @@ func (r *PaymentBillRepository) CreatePaymentBill(ctx context.Context, tx *sqlx.
 	query := `
        INSERT INTO payment_bills (
                              id,  
-                        	
-                             loan_id, 
+                        	 borrower_id,
+                             payment_id, 
                              bill_id,
                              amount,
                              created_at, 
                              updated_at
-	 	) VALUES ($1, $2, $3, $4, $5, $6)
+	 	) VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING id, created_at, updated_at
    `
 	paymentBill.ID = uuid.New().String()
@@ -38,6 +38,7 @@ func (r *PaymentBillRepository) CreatePaymentBill(ctx context.Context, tx *sqlx.
 		ctx,
 		query,
 		paymentBill.ID,
+		paymentBill.BorrowerID,
 		paymentBill.PaymentId,
 		paymentBill.BillId,
 		paymentBill.Amount,

@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	"github.com/ran-jita/billing-engine/internal/model/dto"
@@ -103,8 +102,6 @@ func (h *LoanDomain) PayBills(ctx context.Context, tx *sqlx.Tx, loanWithBills dt
 	if err != nil {
 		return err
 	}
-
-	fmt.Println(totalPaid)
 
 	err = h.loanRepository.UpdateOutstandingAmount(ctx, tx, loanId, *totalPaid)
 	if err != nil {

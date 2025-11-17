@@ -28,20 +28,21 @@ func (h *PaymentDomain) CreatePayment(ctx context.Context, tx *sqlx.Tx, payment 
 
 	err = h.paymentRepository.CreatePayment(ctx, tx, payment)
 	if err != nil {
-		fmt.Println("failed to create payment")
+		fmt.Println("failed to create payment: ", err)
 		return err
 	}
 
 	for _, bill := range bills {
 		var paymentBill *postgresql.PaymentBill
 		paymentBill = &postgresql.PaymentBill{
-			PaymentId: payment.ID,
-			BillId:    bill.ID,
-			Amount:    bill.Amount,
+			BorrowerID: payment.BorrowerID,
+			PaymentId:  payment.ID,
+			BillId:     bill.ID,
+			Amount:     bill.Amount,
 		}
 		err = h.paymentBilingRepository.CreatePaymentBill(ctx, tx, paymentBill)
 		if err != nil {
-			fmt.Println("failed to create payment bill")
+			fmt.Println("failed to create payment bill: ", err)
 			return err
 		}
 	}

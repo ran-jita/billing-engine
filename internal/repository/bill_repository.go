@@ -71,6 +71,7 @@ func (r *BillRepository) GetAllOverdueByLoanId(ctx context.Context, loanId strin
 	query := `
        SELECT
            id,
+           borrower_id,
            loan_id,
            amount,
            due_date,
@@ -98,6 +99,7 @@ func (r *BillRepository) GetBorrowerIdWithOverdueBills(ctx context.Context, proc
 		FROM bills
 		WHERE due_date < $1 AND status = $2
 		GROUP BY borrower_id
+    	HAVING count(id) >= 2
    `
 
 	err := r.db.SelectContext(ctx, &borrowerId, query, processDate, statusBillUnpaid)

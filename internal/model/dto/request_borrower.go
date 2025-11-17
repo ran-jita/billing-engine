@@ -1,5 +1,5 @@
 package dto
 
 type UpdateDelinquent struct {
-	ProcessDate string `json:"date"`
+	ProcessDate string `json:"process_date"`
 }

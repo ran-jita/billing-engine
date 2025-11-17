@@ -21,21 +21,23 @@ func (r *PaymentRepository) CreatePayment(ctx context.Context, tx *sqlx.Tx, paym
 	query := `
        INSERT INTO payments (
                              id,  
+                             borrower_id,
                              total_amount, 
                              payment_date, 
                              created_at, 
                              updated_at
-	 	) VALUES ($1, $2, $3, $4, $5)
+	 	) VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id, created_at, updated_at
    `
 	payment.ID = uuid.New().String()
 	payment.CreatedAt = time.Now()
 	payment.UpdatedAt = time.Now()
-
+	
 	err := tx.QueryRowContext(
 		ctx,
 		query,
 		payment.ID,
+		payment.BorrowerID,
 		payment.TotalAmount,
 		payment.PaymentDate,
 		payment.CreatedAt,

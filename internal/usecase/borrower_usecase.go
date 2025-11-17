@@ -28,8 +28,6 @@ func (h *BorrowerUsecase) GetById(ctx context.Context, borrowerId string) (postg
 }
 
 func (h *BorrowerUsecase) UpdateDelinquent(ctx context.Context, processDate time.Time) error {
-	processDate = processDate.AddDate(0, 0, -14)
-	fmt.Println(processDate)
 	borrowerIds, err := h.loanDomain.GetBorrowerIdWithOverdueBill(ctx, processDate)
 	if err != nil {
 		fmt.Println("borrowerIds error", err)
