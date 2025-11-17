@@ -8,6 +8,7 @@ import (
 	"github.com/ran-jita/billing-engine/internal/model/dto"
 	"github.com/ran-jita/billing-engine/internal/model/postgresql"
 	"github.com/ran-jita/billing-engine/internal/repository"
+	"time"
 )
 
 type LoanDomain struct {
@@ -54,7 +55,7 @@ func (h *LoanDomain) GetById(ctx context.Context, loanId string) (postgresql.Loa
 	return loan, err
 }
 
-func (h *LoanDomain) GetOverdueBillByLoanId(ctx context.Context, loanId string) (dto.LoanWithBills, error) {
+func (h *LoanDomain) GetOverdueBillByLoanId(ctx context.Context, loanId string, paymentDate time.Time) (dto.LoanWithBills, error) {
 	var (
 		response dto.LoanWithBills
 		err      error
@@ -75,7 +76,7 @@ func (h *LoanDomain) GetOverdueBillByLoanId(ctx context.Context, loanId string) 
 		}
 	}
 
-	response.Bills, err = h.billRepository.GetAllOverdueByLoanId(ctx, loanId)
+	response.Bills, err = h.billRepository.GetAllOverdueByLoanId(ctx, loanId, paymentDate)
 	if err != nil {
 		return response, err
 	}

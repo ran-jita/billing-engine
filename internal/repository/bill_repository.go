@@ -66,25 +66,23 @@ func (r *BillRepository) GetTotalPaid(ctx context.Context, loanId string) (*floa
 }
 
 // GetAllOverdueByLoanId get all overdue bills by loan_id
-func (r *BillRepository) GetAllOverdueByLoanId(ctx context.Context, loanId string) ([]postgresql.Bill, error) {
+func (r *BillRepository) GetAllOverdueByLoanId(ctx context.Context, loanId string, paymentDate time.Time) ([]postgresql.Bill, error) {
 	var bills []postgresql.Bill
 	query := `
        SELECT
            id,
-           borrower_id,
-           base_amount,
-           fee_amount,
-       	total_loan_amount,
-           outstanding_amount,
-           start_date,
+           loan_id,
+           amount,
+           due_date,
+       	   status,
            created_at,
            updated_at
-       FROM loans
-       WHERE id = $1 AND due_date <= NOW() AND status = $2
+       FROM bills
+       WHERE loan_id = $1 AND due_date <= $2 AND status = $3
        ORDER BY created_at DESC
    `
 
-	err := r.db.SelectContext(ctx, &bills, query, loanId, statusBillUnpaid)
+	err := r.db.SelectContext(ctx, &bills, query, loanId, paymentDate, statusBillUnpaid)
 	if err != nil {
 		return nil, err
 	}
@@ -100,11 +98,12 @@ func (r *BillRepository) UpdateBillToPaid(ctx context.Context, billId string) er
        WHERE id = $3
    `
 
+	updatedAt := time.Now()
 	_, err := r.db.ExecContext(
 		ctx,
 		query,
 		statusBillPaid,
-		time.Now,
+		updatedAt,
 		billId,
 	)
 

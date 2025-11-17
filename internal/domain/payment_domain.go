@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/ran-jita/billing-engine/internal/model/postgresql"
 	"github.com/ran-jita/billing-engine/internal/repository"
-	"time"
 )
 
 type PaymentDomain struct {
@@ -25,7 +24,6 @@ func NewPaymentDomain(
 func (h *PaymentDomain) CreatePayment(ctx context.Context, payment *postgresql.Payment, bills []postgresql.Bill) error {
 	var err error
 
-	payment.PaymentDate = time.Now()
 	err = h.paymentRepository.CreatePayment(ctx, payment)
 	if err != nil {
 		return err
