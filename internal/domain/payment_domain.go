@@ -2,6 +2,8 @@ package domain
 
 import (
 	"context"
+	"fmt"
+	"github.com/jmoiron/sqlx"
 	"github.com/ran-jita/billing-engine/internal/model/postgresql"
 	"github.com/ran-jita/billing-engine/internal/repository"
 )
@@ -21,11 +23,12 @@ func NewPaymentDomain(
 	}
 }
 
-func (h *PaymentDomain) CreatePayment(ctx context.Context, payment *postgresql.Payment, bills []postgresql.Bill) error {
+func (h *PaymentDomain) CreatePayment(ctx context.Context, tx *sqlx.Tx, payment *postgresql.Payment, bills []postgresql.Bill) error {
 	var err error
 
-	err = h.paymentRepository.CreatePayment(ctx, payment)
+	err = h.paymentRepository.CreatePayment(ctx, tx, payment)
 	if err != nil {
+		fmt.Println("failed to create payment")
 		return err
 	}
 
@@ -36,8 +39,9 @@ func (h *PaymentDomain) CreatePayment(ctx context.Context, payment *postgresql.P
 			BillId:    bill.ID,
 			Amount:    bill.Amount,
 		}
-		err = h.paymentBilingRepository.CreatePaymentBill(ctx, paymentBill)
+		err = h.paymentBilingRepository.CreatePaymentBill(ctx, tx, paymentBill)
 		if err != nil {
+			fmt.Println("failed to create payment bill")
 			return err
 		}
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/jmoiron/sqlx"
 	"github.com/ran-jita/billing-engine/internal/domain"
 	"github.com/ran-jita/billing-engine/internal/model/dto"
 	"github.com/ran-jita/billing-engine/internal/model/postgresql"
@@ -14,15 +15,18 @@ import (
 type PaymentUsecase struct {
 	paymentDomain *domain.PaymentDomain
 	loanDomain    *domain.LoanDomain
+	db            *sqlx.DB
 }
 
 func NewPaymentUsecase(
 	paymentDomain *domain.PaymentDomain,
 	loanDomain *domain.LoanDomain,
+	db *sqlx.DB,
 ) *PaymentUsecase {
 	return &PaymentUsecase{
 		paymentDomain: paymentDomain,
 		loanDomain:    loanDomain,
+		db:            db,
 	}
 }
 
@@ -61,6 +65,12 @@ func (u *PaymentUsecase) Create(ctx context.Context, request *dto.CreatePayment)
 		return payment, err
 	}
 
+	tx, err := u.db.Beginx()
+	if err != nil {
+		return payment, fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+
 	var wg sync.WaitGroup
 	errChan := make(chan error, 2)
 
@@ -70,7 +80,7 @@ func (u *PaymentUsecase) Create(ctx context.Context, request *dto.CreatePayment)
 		defer wg.Done()
 		payment.PaymentDate = paymentDate
 		payment.TotalAmount = totalPayment
-		err = u.paymentDomain.CreatePayment(ctx, &payment, loanWithBills.Bills)
+		err = u.paymentDomain.CreatePayment(ctx, tx, &payment, loanWithBills.Bills)
 		if err != nil {
 			errChan <- fmt.Errorf("create payment failed: %w", err)
 		}
@@ -78,7 +88,7 @@ func (u *PaymentUsecase) Create(ctx context.Context, request *dto.CreatePayment)
 
 	go func() {
 		defer wg.Done()
-		if err := u.loanDomain.PayBills(ctx, loanWithBills); err != nil {
+		if err := u.loanDomain.PayBills(ctx, tx, loanWithBills); err != nil {
 			errChan <- fmt.Errorf("update bill failed: %w", err)
 		}
 	}()
@@ -86,14 +96,21 @@ func (u *PaymentUsecase) Create(ctx context.Context, request *dto.CreatePayment)
 	wg.Wait()
 	close(errChan)
 
+	// Collect all errors from channel
 	var errs []error
 	for err := range errChan {
 		errs = append(errs, err)
 	}
 
+	// If there are any errors, rollback and return
 	if len(errs) > 0 {
 		return payment, fmt.Errorf("payment processing failed: %v", errs)
 	}
 
-	return payment, <-errChan
+	err = tx.Commit()
+	if err != nil {
+		return payment, fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return payment, nil
 }

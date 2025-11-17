@@ -85,7 +85,7 @@ func initHandler(db *sqlx.DB) handlerCollection {
 	paymentRepository := repository.NewPaymentRepository(db)
 	paymentBillRepository := repository.NewPaymentBillRepository(db)
 	paymentDomain := domain.NewPaymentDomain(paymentRepository, paymentBillRepository)
-	paymentUsecase := usecase.NewPaymentUsecase(paymentDomain, loanDomain)
+	paymentUsecase := usecase.NewPaymentUsecase(paymentDomain, loanDomain, db)
 	collection.paymentHandler = handler.NewPaymentHandler(paymentUsecase)
 
 	return collection

@@ -17,7 +17,7 @@ func NewPaymentRepository(db *sqlx.DB) *PaymentRepository {
 }
 
 // CreatePayment create new payment
-func (r *PaymentRepository) CreatePayment(ctx context.Context, payment *postgresql.Payment) error {
+func (r *PaymentRepository) CreatePayment(ctx context.Context, tx *sqlx.Tx, payment *postgresql.Payment) error {
 	query := `
        INSERT INTO payments (
                              id,  
@@ -32,7 +32,7 @@ func (r *PaymentRepository) CreatePayment(ctx context.Context, payment *postgres
 	payment.CreatedAt = time.Now()
 	payment.UpdatedAt = time.Now()
 
-	err := r.db.QueryRowContext(
+	err := tx.QueryRowContext(
 		ctx,
 		query,
 		payment.ID,

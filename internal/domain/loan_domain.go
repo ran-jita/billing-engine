@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
+	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	"github.com/ran-jita/billing-engine/internal/model/dto"
 	"github.com/ran-jita/billing-engine/internal/model/postgresql"
@@ -84,25 +86,27 @@ func (h *LoanDomain) GetOverdueBillByLoanId(ctx context.Context, loanId string, 
 	return response, err
 }
 
-func (h *LoanDomain) PayBills(ctx context.Context, loanWithBills dto.LoanWithBills) error {
+func (h *LoanDomain) PayBills(ctx context.Context, tx *sqlx.Tx, loanWithBills dto.LoanWithBills) error {
 	var (
 		err    error
 		loanId string = loanWithBills.Loan.ID
 	)
 
 	for _, bill := range loanWithBills.Bills {
-		err = h.billRepository.UpdateBillToPaid(ctx, bill.ID)
+		err = h.billRepository.UpdateBillToPaid(ctx, tx, bill.ID)
 		if err != nil {
 			return err
 		}
 	}
 
-	totalPaid, err := h.billRepository.GetTotalPaid(ctx, loanId)
+	totalPaid, err := h.billRepository.GetTotalPaid(ctx, tx, loanId)
 	if err != nil {
 		return err
 	}
 
-	err = h.loanRepository.UpdateOutstandingAmount(ctx, loanId, *totalPaid)
+	fmt.Println(totalPaid)
+
+	err = h.loanRepository.UpdateOutstandingAmount(ctx, tx, loanId, *totalPaid)
 	if err != nil {
 		return err
 	}

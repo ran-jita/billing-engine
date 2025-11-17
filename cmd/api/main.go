@@ -17,6 +17,7 @@ func main() {
 	}
 
 	db, err := initPostgreSql()
+	defer db.Close()
 
 	routes.InitHttpRoutes(db)
 }
@@ -25,10 +26,11 @@ func main() {
 func initPostgreSql() (*sqlx.DB, error) {
 	// Initialize database connection
 	dbConfig := database.GetConfig()
+
 	db, err := database.NewPostgresDB(dbConfig)
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
-	defer db.Close()
+
 	return db, err
 }

@@ -49,7 +49,7 @@ func NewBillRepository(db *sqlx.DB) *BillRepository {
 //}
 
 // GetPaid get sum of amount of bill with status paid
-func (r *BillRepository) GetTotalPaid(ctx context.Context, loanId string) (*float64, error) {
+func (r *BillRepository) GetTotalPaid(ctx context.Context, tx *sqlx.Tx, loanId string) (*float64, error) {
 	var totalPaid *float64
 	query := `
       SELECT sum(amount)
@@ -57,7 +57,7 @@ func (r *BillRepository) GetTotalPaid(ctx context.Context, loanId string) (*floa
 		WHERE loan_id = $1 AND status = $2
 	`
 
-	err := r.db.GetContext(ctx, &totalPaid, query, loanId, statusBillPaid)
+	err := tx.GetContext(ctx, &totalPaid, query, loanId, statusBillPaid)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func (r *BillRepository) GetAllOverdueByLoanId(ctx context.Context, loanId strin
 }
 
 // UpdateBill update bills data
-func (r *BillRepository) UpdateBillToPaid(ctx context.Context, billId string) error {
+func (r *BillRepository) UpdateBillToPaid(ctx context.Context, tx *sqlx.Tx, billId string) error {
 	query := `
        UPDATE bills
        SET status = $1, updated_at = $2
@@ -99,7 +99,7 @@ func (r *BillRepository) UpdateBillToPaid(ctx context.Context, billId string) er
    `
 
 	updatedAt := time.Now()
-	_, err := r.db.ExecContext(
+	_, err := tx.ExecContext(
 		ctx,
 		query,
 		statusBillPaid,

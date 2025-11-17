@@ -100,14 +100,14 @@ func (r *LoanRepository) GetAll(ctx context.Context, borrowerId string) ([]postg
 }
 
 // Update update outstanding amount based on total paid bill
-func (r *LoanRepository) UpdateOutstandingAmount(ctx context.Context, loanId string, totalPaid float64) error {
+func (r *LoanRepository) UpdateOutstandingAmount(ctx context.Context, tx *sqlx.Tx, loanId string, totalPaid float64) error {
 	query := `
        UPDATE loans
        SET outstanding_amount = total_loan_amount - $1, updated_at = $2
        WHERE id = $3
    `
 
-	_, err := r.db.ExecContext(
+	_, err := tx.ExecContext(
 		ctx,
 		query,
 		totalPaid,

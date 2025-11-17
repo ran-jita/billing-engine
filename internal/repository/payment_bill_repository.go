@@ -17,7 +17,7 @@ func NewPaymentBillRepository(db *sqlx.DB) *PaymentBillRepository {
 }
 
 // CreatePaymentBill create new payment for a bill
-func (r *PaymentBillRepository) CreatePaymentBill(ctx context.Context, paymentBill *postgresql.PaymentBill) error {
+func (r *PaymentBillRepository) CreatePaymentBill(ctx context.Context, tx *sqlx.Tx, paymentBill *postgresql.PaymentBill) error {
 	query := `
        INSERT INTO payment_bills (
                              id,  
@@ -33,7 +33,7 @@ func (r *PaymentBillRepository) CreatePaymentBill(ctx context.Context, paymentBi
 	paymentBill.CreatedAt = time.Now()
 	paymentBill.UpdatedAt = time.Now()
 
-	err := r.db.QueryRowContext(
+	err := tx.QueryRowContext(
 		ctx,
 		query,
 		paymentBill.ID,
