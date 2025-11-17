@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
+	"github.com/ran-jita/billing-engine/internal/cron"
 	"github.com/ran-jita/billing-engine/internal/routes"
 	"log"
 
@@ -18,6 +19,10 @@ func main() {
 
 	db, err := initPostgreSql()
 	defer db.Close()
+
+	cronJobs := cron.NewCronJobs(db)
+	cronJobs.Start()
+	defer cronJobs.Stop()
 
 	routes.InitHttpRoutes(db)
 }
