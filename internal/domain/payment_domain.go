@@ -23,10 +23,10 @@ func NewPaymentDomain(
 	}
 }
 
-func (h *PaymentDomain) CreatePayment(ctx context.Context, tx *sqlx.Tx, payment *postgresql.Payment, bills []postgresql.Bill) error {
+func (d *PaymentDomain) CreatePayment(ctx context.Context, tx *sqlx.Tx, payment *postgresql.Payment, bills []postgresql.Bill) error {
 	var err error
 
-	err = h.paymentRepository.CreatePayment(ctx, tx, payment)
+	err = d.paymentRepository.CreatePayment(ctx, tx, payment)
 	if err != nil {
 		fmt.Println("failed to create payment: ", err)
 		return err
@@ -40,7 +40,7 @@ func (h *PaymentDomain) CreatePayment(ctx context.Context, tx *sqlx.Tx, payment 
 			BillId:     bill.ID,
 			Amount:     bill.Amount,
 		}
-		err = h.paymentBilingRepository.CreatePaymentBill(ctx, tx, paymentBill)
+		err = d.paymentBilingRepository.CreatePaymentBill(ctx, tx, paymentBill)
 		if err != nil {
 			fmt.Println("failed to create payment bill: ", err)
 			return err

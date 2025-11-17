@@ -17,8 +17,8 @@ func NewBorrowerDomain(borrowerRepository *repository.BorrowerRepository) *Borro
 	return &BorrowerDomain{borrowerRepository: borrowerRepository}
 }
 
-func (h *BorrowerDomain) GetById(ctx context.Context, borrowerId string) (postgresql.Borrower, error) {
-	borrower, err := h.borrowerRepository.GetByID(ctx, borrowerId)
+func (d *BorrowerDomain) GetById(ctx context.Context, borrowerId string) (postgresql.Borrower, error) {
+	borrower, err := d.borrowerRepository.GetByID(ctx, borrowerId)
 	if err != nil {
 		// Handle UUID parsing error from database
 		if pqErr, ok := err.(*pq.Error); ok {
@@ -36,6 +36,6 @@ func (h *BorrowerDomain) GetById(ctx context.Context, borrowerId string) (postgr
 	return borrower, err
 }
 
-func (h *BorrowerDomain) UpdateDelinquentByBorrowerId(ctx context.Context, borrowerId string) error {
-	return h.borrowerRepository.UpdateDelinquentStatus(ctx, borrowerId)
+func (d *BorrowerDomain) UpdateDelinquentByBorrowerId(ctx context.Context, borrowerId string) error {
+	return d.borrowerRepository.UpdateDelinquentStatus(ctx, borrowerId)
 }

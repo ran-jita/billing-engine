@@ -27,8 +27,8 @@ func NewLoanDomain(
 	}
 }
 
-func (h *LoanDomain) GetAll(ctx context.Context, borrowerId string) ([]postgresql.Loan, error) {
-	loan, err := h.loanRepository.GetAllByBorrowerId(ctx, borrowerId)
+func (d *LoanDomain) GetAll(ctx context.Context, borrowerId string) ([]postgresql.Loan, error) {
+	loan, err := d.loanRepository.GetAllByBorrowerId(ctx, borrowerId)
 	if len(loan) == 0 {
 		// Handle not found case
 		err = errors.New("loan not found")
@@ -37,8 +37,8 @@ func (h *LoanDomain) GetAll(ctx context.Context, borrowerId string) ([]postgresq
 	return loan, err
 }
 
-func (h *LoanDomain) GetById(ctx context.Context, loanId string) (postgresql.Loan, error) {
-	loan, err := h.loanRepository.GetByID(ctx, loanId)
+func (d *LoanDomain) GetById(ctx context.Context, loanId string) (postgresql.Loan, error) {
+	loan, err := d.loanRepository.GetByID(ctx, loanId)
 	if err != nil {
 		// Handle UUID parsing error from database
 		if pqErr, ok := err.(*pq.Error); ok {
@@ -56,12 +56,12 @@ func (h *LoanDomain) GetById(ctx context.Context, loanId string) (postgresql.Loa
 	return loan, err
 }
 
-func (h *LoanDomain) GetOverdueBillByLoanId(ctx context.Context, loanId string, paymentDate time.Time) (dto.LoanWithBills, error) {
+func (d *LoanDomain) GetOverdueBillByLoanId(ctx context.Context, loanId string, paymentDate time.Time) (dto.LoanWithBills, error) {
 	var (
 		response dto.LoanWithBills
 		err      error
 	)
-	response.Loan, err = h.loanRepository.GetByID(ctx, loanId)
+	response.Loan, err = d.loanRepository.GetByID(ctx, loanId)
 	if err != nil {
 		// Handle UUID parsing error from database
 		if pqErr, ok := err.(*pq.Error); ok {
@@ -77,7 +77,7 @@ func (h *LoanDomain) GetOverdueBillByLoanId(ctx context.Context, loanId string, 
 		}
 	}
 
-	response.Bills, err = h.billRepository.GetAllOverdueByLoanId(ctx, loanId, paymentDate)
+	response.Bills, err = d.billRepository.GetAllOverdueByLoanId(ctx, loanId, paymentDate)
 	if err != nil {
 		return response, err
 	}
@@ -85,25 +85,25 @@ func (h *LoanDomain) GetOverdueBillByLoanId(ctx context.Context, loanId string, 
 	return response, err
 }
 
-func (h *LoanDomain) PayBills(ctx context.Context, tx *sqlx.Tx, loanWithBills dto.LoanWithBills) error {
+func (d *LoanDomain) PayBills(ctx context.Context, tx *sqlx.Tx, loanWithBills dto.LoanWithBills) error {
 	var (
 		err    error
 		loanId string = loanWithBills.Loan.ID
 	)
 
 	for _, bill := range loanWithBills.Bills {
-		err = h.billRepository.UpdateBillToPaid(ctx, tx, bill.ID)
+		err = d.billRepository.UpdateBillToPaid(ctx, tx, bill.ID)
 		if err != nil {
 			return err
 		}
 	}
 
-	totalPaid, err := h.billRepository.GetTotalPaid(ctx, tx, loanId)
+	totalPaid, err := d.billRepository.GetTotalPaid(ctx, tx, loanId)
 	if err != nil {
 		return err
 	}
 
-	err = h.loanRepository.UpdateOutstandingAmount(ctx, tx, loanId, *totalPaid)
+	err = d.loanRepository.UpdateOutstandingAmount(ctx, tx, loanId, *totalPaid)
 	if err != nil {
 		return err
 	}
@@ -111,13 +111,13 @@ func (h *LoanDomain) PayBills(ctx context.Context, tx *sqlx.Tx, loanWithBills dt
 	return nil
 }
 
-func (h *LoanDomain) GetBorrowerIdWithOverdueBill(ctx context.Context, progressDate time.Time) ([]string, error) {
+func (d *LoanDomain) GetBorrowerIdWithOverdueBill(ctx context.Context, progressDate time.Time) ([]string, error) {
 	var (
 		borrowerId []string
 		err        error
 	)
 
-	borrowerId, err = h.billRepository.GetBorrowerIdWithOverdueBills(ctx, progressDate)
+	borrowerId, err = d.billRepository.GetBorrowerIdWithOverdueBills(ctx, progressDate)
 	if err != nil {
 		return borrowerId, err
 	}

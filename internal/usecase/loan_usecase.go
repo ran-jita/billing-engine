@@ -14,10 +14,10 @@ func NewLoanUsecase(loanDomain *domain.LoanDomain) *LoanUsecase {
 	return &LoanUsecase{loanDomain: loanDomain}
 }
 
-func (h *LoanUsecase) GetAll(ctx context.Context, borrowerId string) ([]postgresql.Loan, error) {
-	return h.loanDomain.GetAll(ctx, borrowerId)
+func (u *LoanUsecase) GetAll(ctx context.Context, borrowerId string) ([]postgresql.Loan, error) {
+	return u.loanDomain.GetAll(ctx, borrowerId)
 }
 
-func (h *LoanUsecase) GetById(ctx context.Context, loanId string) (postgresql.Loan, error) {
-	return h.loanDomain.GetById(ctx, loanId)
+func (u *LoanUsecase) GetById(ctx context.Context, loanId string) (postgresql.Loan, error) {
+	return u.loanDomain.GetById(ctx, loanId)
 }
