@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ran-jita/billing-engine/internal/domain"
-	"github.com/ran-jita/billing-engine/internal/model"
 	"github.com/ran-jita/billing-engine/internal/model/dto"
+	"github.com/ran-jita/billing-engine/internal/model/postgresql"
 	"sync"
 )
 
@@ -25,9 +25,9 @@ func NewPaymentUsecase(
 	}
 }
 
-func (u *PaymentUsecase) Create(ctx context.Context, request *dto.CreatePayment) (model.Payment, error) {
+func (u *PaymentUsecase) Create(ctx context.Context, request *dto.CreatePayment) (postgresql.Payment, error) {
 	var (
-		payment        model.Payment
+		payment        postgresql.Payment
 		loanWithBills  dto.LoanWithBills
 		totalAmountDue float64
 		err            error

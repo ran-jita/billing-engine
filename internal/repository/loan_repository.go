@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"github.com/ran-jita/billing-engine/internal/model"
+	"github.com/ran-jita/billing-engine/internal/model/postgresql"
 	"time"
 
 	//"github.com/google/uuid"
@@ -47,8 +47,8 @@ func NewLoanRepository(db *sqlx.DB) *LoanRepository {
 //}
 
 // GetByID get loan by ID
-func (r *LoanRepository) GetByID(ctx context.Context, id string) (model.Loan, error) {
-	var loan model.Loan
+func (r *LoanRepository) GetByID(ctx context.Context, id string) (postgresql.Loan, error) {
+	var loan postgresql.Loan
 	query := `
        SELECT 
            id, 
@@ -73,8 +73,8 @@ func (r *LoanRepository) GetByID(ctx context.Context, id string) (model.Loan, er
 }
 
 // GetAll get all loan based on borrowerId
-func (r *LoanRepository) GetAll(ctx context.Context, borrowerId string) ([]model.Loan, error) {
-	var loans []model.Loan
+func (r *LoanRepository) GetAll(ctx context.Context, borrowerId string) ([]postgresql.Loan, error) {
+	var loans []postgresql.Loan
 	query := `
         SELECT 
             id, 

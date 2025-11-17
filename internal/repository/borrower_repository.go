@@ -2,7 +2,8 @@ package repository
 
 import (
 	"context"
-	"github.com/ran-jita/billing-engine/internal/model"
+	"github.com/ran-jita/billing-engine/internal/model/postgresql"
+
 	//"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
@@ -45,8 +46,8 @@ func NewBorrowerRepository(db *sqlx.DB) *BorrowerRepository {
 //}
 
 // GetByID get loan by ID
-func (r *BorrowerRepository) GetByID(ctx context.Context, id string) (model.Borrower, error) {
-	var borrower model.Borrower
+func (r *BorrowerRepository) GetByID(ctx context.Context, id string) (postgresql.Borrower, error) {
+	var borrower postgresql.Borrower
 	query := `
        SELECT 
            	id, 

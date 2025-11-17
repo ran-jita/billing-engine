@@ -1,8 +1,10 @@
 package dto
 
-import "github.com/ran-jita/billing-engine/internal/model"
+import (
+	"github.com/ran-jita/billing-engine/internal/model/postgresql"
+)
 
 type LoanWithBills struct {
-	Loan  model.Loan   `json:"loan"`
-	Bills []model.Bill `json:"bills"`
+	Loan  postgresql.Loan   `json:"loan"`
+	Bills []postgresql.Bill `json:"bills"`
 }

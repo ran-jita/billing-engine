@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/lib/pq"
-	"github.com/ran-jita/billing-engine/internal/model"
 	"github.com/ran-jita/billing-engine/internal/model/dto"
+	"github.com/ran-jita/billing-engine/internal/model/postgresql"
 	"github.com/ran-jita/billing-engine/internal/repository"
 )
 
@@ -25,7 +25,7 @@ func NewLoanDomain(
 	}
 }
 
-func (h *LoanDomain) GetAll(ctx context.Context, borrowerId string) ([]model.Loan, error) {
+func (h *LoanDomain) GetAll(ctx context.Context, borrowerId string) ([]postgresql.Loan, error) {
 	loan, err := h.loanRepository.GetAll(ctx, borrowerId)
 	if len(loan) == 0 {
 		// Handle not found case
@@ -35,7 +35,7 @@ func (h *LoanDomain) GetAll(ctx context.Context, borrowerId string) ([]model.Loa
 	return loan, err
 }
 
-func (h *LoanDomain) GetById(ctx context.Context, loanId string) (model.Loan, error) {
+func (h *LoanDomain) GetById(ctx context.Context, loanId string) (postgresql.Loan, error) {
 	loan, err := h.loanRepository.GetByID(ctx, loanId)
 	if err != nil {
 		// Handle UUID parsing error from database

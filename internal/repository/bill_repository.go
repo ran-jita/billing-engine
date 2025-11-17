@@ -4,7 +4,7 @@ import (
 	//"github.com/google/uuid"
 	"context"
 	"github.com/jmoiron/sqlx"
-	"github.com/ran-jita/billing-engine/internal/model"
+	"github.com/ran-jita/billing-engine/internal/model/postgresql"
 	"time"
 )
 
@@ -66,8 +66,8 @@ func (r *BillRepository) GetTotalPaid(ctx context.Context, loanId string) (*floa
 }
 
 // GetAllOverdueByLoanId get all overdue bills by loan_id
-func (r *BillRepository) GetAllOverdueByLoanId(ctx context.Context, loanId string) ([]model.Bill, error) {
-	var bills []model.Bill
+func (r *BillRepository) GetAllOverdueByLoanId(ctx context.Context, loanId string) ([]postgresql.Bill, error) {
+	var bills []postgresql.Bill
 	query := `
        SELECT
            id,

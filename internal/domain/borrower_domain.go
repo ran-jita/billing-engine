@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/lib/pq"
-	"github.com/ran-jita/billing-engine/internal/model"
+	"github.com/ran-jita/billing-engine/internal/model/postgresql"
 	"github.com/ran-jita/billing-engine/internal/repository"
 )
 
@@ -17,7 +17,7 @@ func NewBorrowerDomain(borrowerRepository *repository.BorrowerRepository) *Borro
 	return &BorrowerDomain{borrowerRepository: borrowerRepository}
 }
 
-func (h *BorrowerDomain) GetById(ctx context.Context, borrowerId string) (model.Borrower, error) {
+func (h *BorrowerDomain) GetById(ctx context.Context, borrowerId string) (postgresql.Borrower, error) {
 	borrower, err := h.borrowerRepository.GetByID(ctx, borrowerId)
 	if err != nil {
 		// Handle UUID parsing error from database

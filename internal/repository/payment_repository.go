@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
-	"github.com/ran-jita/billing-engine/internal/model"
+	"github.com/ran-jita/billing-engine/internal/model/postgresql"
 	"time"
 )
 
@@ -17,7 +17,7 @@ func NewPaymentRepository(db *sqlx.DB) *PaymentRepository {
 }
 
 // CreatePayment create new payment
-func (r *PaymentRepository) CreatePayment(ctx context.Context, payment *model.Payment) error {
+func (r *PaymentRepository) CreatePayment(ctx context.Context, payment *postgresql.Payment) error {
 	query := `
        INSERT INTO payments (
                              id,  

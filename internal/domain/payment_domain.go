@@ -2,7 +2,7 @@ package domain
 
 import (
 	"context"
-	"github.com/ran-jita/billing-engine/internal/model"
+	"github.com/ran-jita/billing-engine/internal/model/postgresql"
 	"github.com/ran-jita/billing-engine/internal/repository"
 	"time"
 )
@@ -22,7 +22,7 @@ func NewPaymentDomain(
 	}
 }
 
-func (h *PaymentDomain) CreatePayment(ctx context.Context, payment *model.Payment, bills []model.Bill) error {
+func (h *PaymentDomain) CreatePayment(ctx context.Context, payment *postgresql.Payment, bills []postgresql.Bill) error {
 	var err error
 
 	payment.PaymentDate = time.Now()
@@ -32,8 +32,8 @@ func (h *PaymentDomain) CreatePayment(ctx context.Context, payment *model.Paymen
 	}
 
 	for _, bill := range bills {
-		var paymentBill *model.PaymentBill
-		paymentBill = &model.PaymentBill{
+		var paymentBill *postgresql.PaymentBill
+		paymentBill = &postgresql.PaymentBill{
 			PaymentId: payment.ID,
 			BillId:    bill.ID,
 			Amount:    bill.Amount,
