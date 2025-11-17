@@ -35,3 +35,7 @@ func (h *BorrowerDomain) GetById(ctx context.Context, borrowerId string) (postgr
 	}
 	return borrower, err
 }
+
+func (h *BorrowerDomain) UpdateDelinquentByBorrowerId(ctx context.Context, borrowerId string) error {
+	return h.borrowerRepository.UpdateDelinquentStatus(ctx, borrowerId)
+}

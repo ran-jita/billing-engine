@@ -90,6 +90,24 @@ func (r *BillRepository) GetAllOverdueByLoanId(ctx context.Context, loanId strin
 	return bills, nil
 }
 
+// GetAllOverdueByLoanId get all overdue bills by loan_id
+func (r *BillRepository) GetBorrowerIdWithOverdueBills(ctx context.Context, processDate time.Time) ([]string, error) {
+	var borrowerId []string
+	query := `
+       	SELECT borrower_id
+		FROM bills
+		WHERE due_date < $1 AND status = $2
+		GROUP BY borrower_id
+   `
+
+	err := r.db.SelectContext(ctx, &borrowerId, query, processDate, statusBillUnpaid)
+	if err != nil {
+		return nil, err
+	}
+
+	return borrowerId, nil
+}
+
 // UpdateBill update bills data
 func (r *BillRepository) UpdateBillToPaid(ctx context.Context, tx *sqlx.Tx, billId string) error {
 	query := `

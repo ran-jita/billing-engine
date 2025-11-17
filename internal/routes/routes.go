@@ -46,6 +46,7 @@ func InitHttpRoutes(db *sqlx.DB) {
 		borrowers := group.Group("/borrowers")
 		{
 			borrowers.GET("/:id", handlers.borrowerHandler.GetById)
+			borrowers.PUT("/delinquent", handlers.borrowerHandler.UpdateStatusDelinquent)
 		}
 
 		// Payments routes
@@ -79,7 +80,7 @@ func initHandler(db *sqlx.DB) handlerCollection {
 
 	borrowerRepository := repository.NewBorrowerRepository(db)
 	borrowerDomain := domain.NewBorrowerDomain(borrowerRepository)
-	borrowerUsecase := usecase.NewBorrowerUsecase(borrowerDomain)
+	borrowerUsecase := usecase.NewBorrowerUsecase(borrowerDomain, loanDomain)
 	collection.borrowerHandler = handler.NewBorrowerHandler(borrowerUsecase)
 
 	paymentRepository := repository.NewPaymentRepository(db)

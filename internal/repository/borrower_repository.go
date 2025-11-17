@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"github.com/ran-jita/billing-engine/internal/model/postgresql"
+	"time"
 
 	//"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -15,6 +16,8 @@ type BorrowerRepository struct {
 func NewBorrowerRepository(db *sqlx.DB) *BorrowerRepository {
 	return &BorrowerRepository{db: db}
 }
+
+const statusUserIsDelinquent = true
 
 // Create membuat loan baru
 //func (r *LoanRepository) Create(ctx context.Context, loan *domain.Loan) error {
@@ -94,32 +97,26 @@ func (r *BorrowerRepository) GetByID(ctx context.Context, id string) (postgresql
 //	return loans, nil
 //}
 
-// Update memperbarui loan
-//func (r *LoanRepository) Update(ctx context.Context, loan *domain.Loan) error {
-//	query := `
-//        UPDATE loans
-//        SET borrower_id = $1, principal_amount = $2, interest_rate = $3,
-//            term = $4, start_date = $5, status = $6, updated_at = $7
-//        WHERE id = $8
-//    `
-//
-//	loan.UpdatedAt = time.Now()
-//
-//	_, err := r.db.ExecContext(
-//		ctx,
-//		query,
-//		loan.BorrowerID,
-//		loan.PrincipalAmount,
-//		loan.InterestRate,
-//		loan.Term,
-//		loan.StartDate,
-//		loan.Status,
-//		loan.UpdatedAt,
-//		loan.ID,
-//	)
-//
-//	return err
-//}
+// Update update borrower delinquent status
+func (r *BorrowerRepository) UpdateDelinquentStatus(ctx context.Context, borrowerId string) error {
+	query := `
+       UPDATE borrowers
+       SET delinquent = $1, updated_at = $2
+       WHERE id = $3
+   `
+
+	updatedAt := time.Now()
+
+	_, err := r.db.ExecContext(
+		ctx,
+		query,
+		statusUserIsDelinquent,
+		updatedAt,
+		borrowerId,
+	)
+
+	return err
+}
 
 // Delete menghapus loan
 //func (r *LoanRepository) Delete(ctx context.Context, id string) error {

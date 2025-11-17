@@ -107,11 +107,13 @@ func (r *LoanRepository) UpdateOutstandingAmount(ctx context.Context, tx *sqlx.T
        WHERE id = $3
    `
 
+	updatedAt := time.Now()
+
 	_, err := tx.ExecContext(
 		ctx,
 		query,
 		totalPaid,
-		time.Now(),
+		updatedAt,
 		loanId,
 	)
 

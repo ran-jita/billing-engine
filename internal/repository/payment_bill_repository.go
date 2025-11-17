@@ -21,6 +21,7 @@ func (r *PaymentBillRepository) CreatePaymentBill(ctx context.Context, tx *sqlx.
 	query := `
        INSERT INTO payment_bills (
                              id,  
+                        	
                              loan_id, 
                              bill_id,
                              amount,

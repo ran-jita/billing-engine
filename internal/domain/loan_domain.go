@@ -113,3 +113,17 @@ func (h *LoanDomain) PayBills(ctx context.Context, tx *sqlx.Tx, loanWithBills dt
 
 	return nil
 }
+
+func (h *LoanDomain) GetBorrowerIdWithOverdueBill(ctx context.Context, progressDate time.Time) ([]string, error) {
+	var (
+		borrowerId []string
+		err        error
+	)
+
+	borrowerId, err = h.billRepository.GetBorrowerIdWithOverdueBills(ctx, progressDate)
+	if err != nil {
+		return borrowerId, err
+	}
+
+	return borrowerId, nil
+}
