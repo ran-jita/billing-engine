@@ -6,17 +6,13 @@ import (
 	"net/http"
 )
 
-type PingHandler interface {
-	Ping(ctx *gin.Context)
+type PingHandler struct{}
+
+func NewPingHandler() *PingHandler {
+	return &PingHandler{}
 }
 
-type pingHandler struct{}
-
-func NewPingHandler() *pingHandler {
-	return &pingHandler{}
-}
-
-func (c *pingHandler) Ping(ctx *gin.Context) {
+func (c *PingHandler) Ping(ctx *gin.Context) {
 	statusCode := http.StatusOK
 
 	ctx.JSON(statusCode, model.ResponseSuccess(
