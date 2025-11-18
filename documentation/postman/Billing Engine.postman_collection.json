@@ -1,0 +1,134 @@
+{
+	"info": {
+		"_postman_id": "9b31d3ef-ea8d-43dd-99d8-877677f798b9",
+		"name": "Billing Engine",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24087530"
+	},
+	"item": [
+		{
+			"name": "Loans",
+			"item": [
+				{
+					"name": "Get Loans By Borrower ID",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/loans?borrower_id=8e74fd65-1235-4f56-83da-53cd0df64dbb",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"loans"
+							],
+							"query": [
+								{
+									"key": "borrower_id",
+									"value": "8e74fd65-1235-4f56-83da-53cd0df64dbb"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Loan By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/loans/11664eed-3921-4be5-ab5a-d2dd3d9509d7",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"loans",
+								"11664eed-3921-4be5-ab5a-d2dd3d9509d7"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Borrower",
+			"item": [
+				{
+					"name": "Get Borrower By ID",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/borrowers/8e74fd65-1235-4f56-83da-53cd0df64dbb",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"borrowers",
+								"8e74fd65-1235-4f56-83da-53cd0df64dbb"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Delinquent Status",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Payment",
+			"item": [
+				{
+					"name": "Create Payment",
+					"request": {
+						"method": "POST",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/ping",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"ping"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
